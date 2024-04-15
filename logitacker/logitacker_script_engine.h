@@ -26,6 +26,9 @@ typedef enum inject_task_type {
     INJECT_TASK_TYPE_DELAY,
     INJECT_TASK_TYPE_TYPE_ALTSTRING,
     INJECT_TASK_TYPE_UNUSED,
+    INJECT_TASK_TYPE_MOUSE_MOVE,
+    INJECT_TASK_TYPE_MOUSE_CLICK,
+    INJECT_TASK_TYPE_MOUSE_SCROLL,
 } inject_task_type_t;
 
 typedef struct inject_task {
@@ -55,6 +58,9 @@ uint32_t logitacker_script_engine_append_task_press_combo(char * str_combo);
 uint32_t logitacker_script_engine_append_task_type_string(char * str);
 uint32_t logitacker_script_engine_append_task_type_altstring(char * str);
 uint32_t logitacker_script_engine_append_task_delay(uint32_t delay_ms);
+uint32_t logitacker_script_engine_append_task_mouse_move(int16_t x, int16_t y);
+uint32_t logitacker_script_engine_append_task_mouse_click(uint8_t button);
+uint32_t logitacker_script_engine_append_task_mouse_scroll(int8_t wheel);
 void logitacker_script_engine_print_current_tasks(nrf_cli_t const * p_cli);
 void logitacker_script_engine_set_language_layout(logitacker_keyboard_map_lang_t lang);
 logitacker_keyboard_map_lang_t logitacker_script_engine_get_language_layout();

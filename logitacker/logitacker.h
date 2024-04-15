@@ -1,10 +1,10 @@
 #ifndef LOGITACKER_H__
 #define LOGITACKER_H__
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+extern char* g_logitacker_cli_name;
 
 #include "app_usbd_types.h"
 #include "app_usbd_hid.h"
@@ -46,8 +46,6 @@ typedef enum {
     LOGITACKER_MODE_INJECT,
     LOGITACKER_MODE_IDLE
 } logitacker_mode_t;
-
-char g_logitacker_cli_name[32];
 
 uint32_t logitacker_init();
 

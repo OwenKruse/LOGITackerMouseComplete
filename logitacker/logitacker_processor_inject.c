@@ -68,6 +68,10 @@ typedef struct {
     bool usb_inject;
 } logitacker_processor_inject_ctx_t;
 
+static void processor_inject_hid_mouse_event_handler(logitacker_processor_t *p_processor, app_usbd_class_inst_t const *p_inst, app_usbd_hid_user_event_t event);
+
+static void processor_inject_hid_mouse_event_handler_(logitacker_processor_inject_ctx_t *self, app_usbd_class_inst_t const *p_inst, app_usbd_hid_user_event_t event);
+
 static void processor_inject_hid_keyboard_event_handler(logitacker_processor_t *p_processor, app_usbd_class_inst_t const *p_inst, app_usbd_hid_user_event_t event);
 
 static void processor_inject_hid_keyboard_event_handler_(logitacker_processor_inject_ctx_t *self, app_usbd_class_inst_t const *p_inst, app_usbd_hid_user_event_t event);
@@ -115,6 +119,59 @@ logitacker_processor_t *contruct_processor_inject_instance(logitacker_processor_
     m_processor.p_usb_hid_keyboard_event_handler = processor_inject_hid_keyboard_event_handler;
 
     return &m_processor;
+}
+
+static void processor_inject_hid_mouse_event_handler(logitacker_processor_t *p_processor, app_usbd_class_inst_t const *p_inst, app_usbd_hid_user_event_t event) {
+    processor_inject_hid_mouse_event_handler_((logitacker_processor_inject_ctx_t *) p_processor->p_ctx, p_inst, event);
+}
+
+static void processor_inject_hid_mouse_event_handler_(logitacker_processor_inject_ctx_t *self, app_usbd_class_inst_t const *p_inst, app_usbd_hid_user_event_t event) {
+    switch (event)
+    {
+        case APP_USBD_HID_USER_EVT_OUT_REPORT_READY:
+        {
+            NRF_LOG_INFO("inject: APP_USBD_HID_USER_EVT_OUT_REPORT_READY");
+            break;
+        }
+        case APP_USBD_HID_USER_EVT_IN_REPORT_DONE:
+        {
+            NRF_LOG_DEBUG("inject: APP_USBD_HID_USER_EVT_IN_REPORT_DONE");
+            self->retransmit_counter = 0;
+
+            if (self->p_payload_provider == NULL) {
+                transfer_state(self, INJECT_STATE_IDLE);
+                return;
+            }
+
+            // fetch next payload
+            if ((*self->p_payload_provider->p_get_next)(self->p_payload_provider, &self->tmp_tx_payload)) {
+                //next payload retrieved
+                NRF_LOG_DEBUG("New payload retrieved from TX_payload_provider");
+
+                // schedule payload transmission
+                //app_timer_start(self->timer_next_action, APP_TIMER_TICKS(self->tx_delay_ms), NULL); //no delay for USB
+                processor_inject_timer_handler_func_(self, self->timer_next_action);
+
+            } else {
+                // no more payloads, we succeeded
+                transfer_state(self, INJECT_STATE_TASK_SUCCEEDED);
+            }
+
+            break;
+        }
+        case APP_USBD_HID_USER_EVT_SET_BOOT_PROTO:
+        {
+            NRF_LOG_INFO("inject: APP_USBD_HID_USER_EVT_SET_BOOT_PROTO");
+            break;
+        }
+        case APP_USBD_HID_USER_EVT_SET_REPORT_PROTO:
+        {
+            NRF_LOG_INFO("inject: APP_USBD_HID_USER_EVT_SET_REPORT_PROTO");
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 static void processor_inject_hid_keyboard_event_handler(logitacker_processor_t *p_processor, app_usbd_class_inst_t const *p_inst, app_usbd_hid_user_event_t event) {
@@ -570,6 +627,60 @@ void logitacker_processor_inject_process_task_delay(logitacker_processor_inject_
     app_timer_start(self->timer_next_action, APP_TIMER_TICKS(delay_ms), NULL);
 }
 
+void logitacker_processor_inject_process_task_mouse_move(logitacker_processor_inject_ctx_t *self) {
+    NRF_LOG_INFO("process mouse move injection: %d, %d", self->current_task.p_data_u32[0], self->current_task.p_data_u32[1]);
+    //self->p_payload_provider = new_payload_provider_mouse_move(self->p_device, self->current_task.p_data_u32[0], self->current_task.p_data_u32[1]);
+    self->p_payload_provider = new_payload_provider_mouse_move(self->usb_inject, self->p_device,
+                                                              self->current_task.p_data_u32[0], self->current_task.p_data_u32[1]);
+
+    //fetch first payload
+    if (!(*self->p_payload_provider->p_get_next)(self->p_payload_provider, &self->tmp_tx_payload)) {
+        //failed to fetch first payload
+        NRF_LOG_WARNING("failed to fetch initial RF report from payload provider");
+        transfer_state(self, INJECT_STATE_FAILED);
+        return;
+    }
+
+    transfer_state(self, INJECT_STATE_WORKING);
+    app_timer_start(self->timer_next_action, APP_TIMER_TICKS(self->tx_delay_ms), NULL);
+}
+
+void logitacker_processor_inject_process_task_mouse_click(logitacker_processor_inject_ctx_t *self) {
+    NRF_LOG_INFO("process mouse click injection: %d", self->current_task.p_data_u32[0]);
+    //self->p_payload_provider = new_payload_provider_mouse_click(self->p_device, self->current_task.p_data_u32[0]);
+    self->p_payload_provider = new_payload_provider_mouse_click(self->usb_inject, self->p_device,
+                                                              self->current_task.p_data_u32[0]);
+
+    //fetch first payload
+    if (!(*self->p_payload_provider->p_get_next)(self->p_payload_provider, &self->tmp_tx_payload)) {
+        //failed to fetch first payload
+        NRF_LOG_WARNING("failed to fetch initial RF report from payload provider");
+        transfer_state(self, INJECT_STATE_FAILED);
+        return;
+    }
+
+    transfer_state(self, INJECT_STATE_WORKING);
+    app_timer_start(self->timer_next_action, APP_TIMER_TICKS(self->tx_delay_ms), NULL);
+}
+
+void logitacker_processor_inject_process_task_mouse_scroll(logitacker_processor_inject_ctx_t *self) {
+    NRF_LOG_INFO("process mouse scroll injection: %d", self->current_task.p_data_u32[0]);
+    //self->p_payload_provider = new_payload_provider_mouse_scroll(self->p_device, self->current_task.p_data_u32[0]);
+    self->p_payload_provider = new_payload_provider_mouse_scroll(self->usb_inject, self->p_device,
+                                                              self->current_task.p_data_u32[0]);
+
+    //fetch first payload
+    if (!(*self->p_payload_provider->p_get_next)(self->p_payload_provider, &self->tmp_tx_payload)) {
+        //failed to fetch first payload
+        NRF_LOG_WARNING("failed to fetch initial RF report from payload provider");
+        transfer_state(self, INJECT_STATE_FAILED);
+        return;
+    }
+
+    transfer_state(self, INJECT_STATE_WORKING);
+    app_timer_start(self->timer_next_action, APP_TIMER_TICKS(self->tx_delay_ms), NULL);
+}
+
 
 void logitacker_processor_inject_run_next_task(logitacker_processor_inject_ctx_t *self) {
     if (self == NULL) {
@@ -609,6 +720,15 @@ void logitacker_processor_inject_run_next_task(logitacker_processor_inject_ctx_t
             break;
         case INJECT_TASK_TYPE_DELAY:
             logitacker_processor_inject_process_task_delay(self);
+            break;
+        case INJECT_TASK_TYPE_MOUSE_MOVE:
+            logitacker_processor_inject_process_task_mouse_move(self);
+            break;
+        case INJECT_TASK_TYPE_MOUSE_CLICK:
+            logitacker_processor_inject_process_task_mouse_click(self);
+            break;
+        case INJECT_TASK_TYPE_MOUSE_SCROLL:
+            logitacker_processor_inject_process_task_mouse_scroll(self);
             break;
         default:
             NRF_LOG_ERROR("unhandled task type %d, dropped ...", self->current_task.type);

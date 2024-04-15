@@ -410,6 +410,25 @@ uint32_t logitacker_usb_read_hidraw_output_report() {
                     logitacker_script_engine_append_task_delay(delay);
                     break;
                 }
+                case LOGITACKER_USB_HIDRAW_COMMAND_SCRIPT_MOUSE_MOVE: {
+                    int16_t x, y;
+                    memcpy(&x, &p_report[3], 2);
+                    memcpy(&y, &p_report[5], 2);
+                    logitacker_script_engine_append_task_mouse_move(x, y);
+                    break;
+                }
+                case LOGITACKER_USB_HIDRAW_COMMAND_SCRIPT_MOUSE_CLICK: {
+                    uint8_t button;
+                    memcpy(&button, &p_report[3], 1);
+                    logitacker_script_engine_append_task_mouse_click(button);
+                    break;
+                }
+                case LOGITACKER_USB_HIDRAW_COMMAND_SCRIPT_MOUSE_SCROLL: {
+                    int8_t wheel;
+                    memcpy(&wheel, &p_report[3], 1);
+                    logitacker_script_engine_append_task_mouse_scroll(wheel);
+                    break;
+                }
                 default:
                     NRF_LOG_WARNING("Unhandled raw report command %02x\n", command)
             }

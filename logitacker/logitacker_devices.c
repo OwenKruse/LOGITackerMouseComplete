@@ -902,6 +902,39 @@ uint32_t logitacker_devices_generate_keyboard_frame(logitacker_devices_unifying_
             return logitacker_devices_generate_keyboard_frame_plain(p_result_payload, p_in_hid_report);
     }
 
+
 }
+
+uint32_t logitacker_devices_generate_mouse_frame(nrf_esb_payload_t *p_result_payload, hid_mouse_report_t const *const p_in_hid_report) {
+    p_result_payload->length = 10;
+    p_result_payload->data[0] = 0x00; //device index
+    p_result_payload->data[1] = UNIFYING_RF_REPORT_PLAIN_MOUSE | UNIFYING_RF_REPORT_BIT_KEEP_ALIVE | UNIFYING_RF_REPORT_BIT_UNKNOWN; //c1
+    p_result_payload->data[2] = p_in_hid_report->buttons;
+    p_result_payload->data[3] = p_in_hid_report->x;
+    p_result_payload->data[4] = p_in_hid_report->y;
+    p_result_payload->data[5] = p_in_hid_report->wheel;
+    p_result_payload->data[6] = 0x00; // will be overwritten by logitech checksum
+    p_result_payload->data[7] = 0x00; // will be overwritten by logitech checksum
+    p_result_payload->data[8] = 0x00; // will be overwritten by logitech checksum
+    p_result_payload->data[9] = 0x00; // will be overwritten by logitech checksum
+    logitacker_unifying_payload_update_checksum(p_result_payload->data, p_result_payload->length);
+
+    return NRF_SUCCESS;
+}
+
+uint32_t logitacker_devices_generate_mouse_frame_USB(nrf_esb_payload_t *p_result_payload, hid_mouse_report_t const *const p_in_hid_report) {
+    p_result_payload->length = 4;
+    p_result_payload->data[0] = p_in_hid_report->buttons;
+    p_result_payload->data[1] = p_in_hid_report->x;
+    p_result_payload->data[2] = p_in_hid_report->y;
+    p_result_payload->data[3] = p_in_hid_report->wheel;
+
+    return NRF_SUCCESS;
+}
+
+
+
+
+
 
 

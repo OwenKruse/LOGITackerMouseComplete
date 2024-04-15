@@ -5,8 +5,8 @@ OUTPUT_DIRECTORY := _build
 SDK_ROOT := ../../../../../..
 PROJ_DIR := ../../..
 
-$(OUTPUT_DIRECTORY)/logitacker_mdk_dongle.out: \
-  LINKER_SCRIPT  := logitacker_mdk_dongle.ld
+$(OUTPUT_DIRECTORY)/nrf52840_xxaa.out: \
+  LINKER_SCRIPT  := logitacker_mdk_dongle_gcc_nrf52.ld
 
 # Source files common to all targets
 SRC_FILES += \
@@ -108,6 +108,7 @@ SRC_FILES += \
   $(PROJ_DIR)/logitacker/logitacker_tx_pay_provider_string_to_keys.c \
   $(PROJ_DIR)/logitacker/logitacker_tx_payload_provider_string_to_altkeys.c \
   $(PROJ_DIR)/logitacker/logitacker_tx_payload_provider_press_to_keys.c \
+  $(PROJ_DIR)/logitacker/logitacker_tx_pay_provider_mouse_to_packet.c \
   $(PROJ_DIR)/logitacker/logitacker_keyboard_map.c \
   $(PROJ_DIR)/logitacker/logitacker_devices.c \
   $(PROJ_DIR)/logitacker/logitacker_radio.c \
@@ -235,6 +236,7 @@ LDFLAGS += $(OPT)
 LDFLAGS += -mthumb -mabi=aapcs -L$(SDK_ROOT)/modules/nrfx/mdk -T$(LINKER_SCRIPT)
 LDFLAGS += -mcpu=cortex-m4
 LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+LDFLAGS += -Wl,--allow-multiple-definition
 # let linker dump unused sections
 LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version

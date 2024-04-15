@@ -744,6 +744,45 @@ static void cmd_script_press(nrf_cli_t const *p_cli, size_t argc, char **argv) {
     logitacker_script_engine_append_task_press_combo(press_str);
 }
 
+static void cmd_script_mouse_move(nrf_cli_t const *p_cli, size_t argc, char **argv) {
+    if (argc != 3) {
+        nrf_cli_fprintf(p_cli, NRF_CLI_ERROR, "invalid mouse move, arguments have to be signed int x and y\r\n");
+        return;
+    }
+
+    int x, y;
+    if (sscanf(argv[1], "%d", &x) != 1) {
+        nrf_cli_fprintf(p_cli, NRF_CLI_ERROR, "invalid mouse move, argument 1 has to be signed int\r\n");
+        return;
+    }
+
+    if (sscanf(argv[2], "%d", &y) != 1) {
+        nrf_cli_fprintf(p_cli, NRF_CLI_ERROR, "invalid mouse move, argument 2 has to be signed int\r\n");
+        return;
+    }
+
+    logitacker_script_engine_append_task_mouse_move(x, y);
+}
+
+static void cmd_script_mouse_click(nrf_cli_t const *p_cli, size_t argc, char **argv) {
+    if (argc != 2) {
+        nrf_cli_fprintf(p_cli, NRF_CLI_ERROR, "invalid mouse click, argument has to be 'left' or 'right'\r\n");
+        return;
+    }
+
+    if (strcmp(argv[1], "left") == 0) {
+        logitacker_script_engine_append_task_mouse_click(MOUSE_BUTTON_LEFT);
+        return;
+    }
+
+    if (strcmp(argv[1], "right") == 0) {
+        logitacker_script_engine_append_task_mouse_click(MOUSE_BUTTON_RIGHT);
+        return;
+    }
+
+    nrf_cli_fprintf(p_cli, NRF_CLI_ERROR, "invalid mouse click, argument has to be 'left' or 'right'\r\n");
+}
+
 
 static void cmd_discover_onhit_activeenum(nrf_cli_t const * p_cli, size_t argc, char **argv)
 {
@@ -1636,4 +1675,6 @@ NRF_CLI_CREATE_STATIC_SUBCMD_SET(m_sub_options)
 
     NRF_CLI_SUBCMD_SET_END
 };
+
+
 NRF_CLI_CMD_REGISTER(options, &m_sub_options, "options", cmd_help);

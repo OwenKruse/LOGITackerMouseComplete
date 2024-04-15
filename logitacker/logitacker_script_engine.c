@@ -320,6 +320,38 @@ uint32_t logitacker_script_engine_append_task_delay(uint32_t delay_ms) {
     return logitacker_script_engine_append_task(tmp_task);
 }
 
+uint32_t logitacker_script_engine_append_task_mouse_move(uint8_t x, uint8_t y) {
+    inject_task_t tmp_task = {0};
+    tmp_task.data_len = 2; //include terminating 0x00
+    uint8_t tmp_data[2] = {x, y};
+    tmp_task.p_data_u8 = tmp_data;
+    tmp_task.type = INJECT_TASK_TYPE_MOUSE_MOVE;
+
+    //return push_task(tmp_task);
+    return logitacker_script_engine_append_task(tmp_task);
+}
+
+uint32_t logitacker_script_engine_append_task_mouse_click(uint8_t button) {
+    inject_task_t tmp_task = {0};
+    tmp_task.data_len = 1; //include terminating 0x00
+    tmp_task.p_data_u8 = &button;
+    tmp_task.type = INJECT_TASK_TYPE_MOUSE_CLICK;
+
+    //return push_task(tmp_task);
+    return logitacker_script_engine_append_task(tmp_task);
+}
+
+uint32_t logitacker_script_engine_append_task_mouse_scroll(int8_t scroll) {
+    inject_task_t tmp_task = {0};
+    tmp_task.data_len = 1; //include terminating 0x00
+    tmp_task.p_data_u8 = (uint8_t*) &scroll;
+    tmp_task.type = INJECT_TASK_TYPE_MOUSE_SCROLL;
+
+    //return push_task(tmp_task);
+    return logitacker_script_engine_append_task(tmp_task);
+}
+
+
 void logitacker_script_engine_print_current_tasks(nrf_cli_t const * p_cli) {
     // ToDo: this uses peeking into ring buffer and thus it has to be prevented, that peeking is already running (f.e.
     // tasks are fetched while injection is performed)
@@ -348,6 +380,18 @@ void logitacker_script_engine_print_current_tasks(nrf_cli_t const * p_cli) {
             case INJECT_TASK_TYPE_PRESS_KEYS:
                 nrf_cli_fprintf(p_cli, NRF_CLI_VT100_COLOR_YELLOW, "press ");
                 nrf_cli_fprintf(p_cli, NRF_CLI_DEFAULT, "%s\r\n", task_data);
+                break;
+            case INJECT_TASK_TYPE_MOUSE_MOVE:
+                nrf_cli_fprintf(p_cli, NRF_CLI_VT100_COLOR_YELLOW, "mouse move ");
+                nrf_cli_fprintf(p_cli, NRF_CLI_DEFAULT, "x: %d, y: %d\r\n", task_data[0], task_data[1]);
+                break;
+            case INJECT_TASK_TYPE_MOUSE_CLICK:
+                nrf_cli_fprintf(p_cli, NRF_CLI_VT100_COLOR_YELLOW, "mouse click ");
+                nrf_cli_fprintf(p_cli, NRF_CLI_DEFAULT, "%d\r\n", task_data[0]);
+                break;
+            case INJECT_TASK_TYPE_MOUSE_SCROLL:
+                nrf_cli_fprintf(p_cli, NRF_CLI_VT100_COLOR_YELLOW, "mouse scroll ");
+                nrf_cli_fprintf(p_cli, NRF_CLI_DEFAULT, "%d\r\n", task_data[0]);
                 break;
             default:
                 nrf_cli_fprintf(p_cli, NRF_CLI_DEFAULT, "%04d: unknown task type %d\r\n", task_num, task.type);
