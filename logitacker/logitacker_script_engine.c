@@ -320,7 +320,7 @@ uint32_t logitacker_script_engine_append_task_delay(uint32_t delay_ms) {
     return logitacker_script_engine_append_task(tmp_task);
 }
 
-uint32_t logitacker_script_engine_append_task_mouse_move(uint8_t x, uint8_t y) {
+uint32_t logitacker_script_engine_append_task_mouse_move(uint16_t x, uint16_t y) {
     inject_task_t tmp_task = {0};
     tmp_task.data_len = 2; //include terminating 0x00
     uint8_t tmp_data[2] = {x, y};
