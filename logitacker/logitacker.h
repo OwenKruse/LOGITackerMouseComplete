@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-extern char* g_logitacker_cli_name;
+char g_logitacker_cli_name[32];
 
 #include "app_usbd_types.h"
 #include "app_usbd_hid.h"

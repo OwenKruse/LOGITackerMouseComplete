@@ -3,7 +3,7 @@ FROM kalilinux/kali-rolling
 WORKDIR /root
 RUN apt-get update && apt-get -y install wget git gcc-arm-none-eabi unzip sed make
 # fetch nRF5 SDK 15.3.0
-RUN wget https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5/Binaries/nRF5SDK153059ac345.zip && unzip nRF5SDK153059ac345.zip && git clone https://github.com/RoganDawes/LOGITacker
+RUN wget https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5/Binaries/nRF5SDK153059ac345.zip && unzip nRF5SDK153059ac345.zip && git clone https://github.com/OwenKruse/LOGITackerMouseComplete.git
 
 # install python3 and download uf2conv.py for AprBrother image conversion (Intel HEX to UF2)
 RUN wget https://raw.githubusercontent.com/microsoft/uf2/master/utils/uf2conv.py && apt-get -y install python3
@@ -13,7 +13,7 @@ RUN wget https://raw.githubusercontent.com/microsoft/uf2/master/utils/uf2familie
 RUN sed -i "s#^GNU_INSTALL_ROOT.*#GNU_INSTALL_ROOT \?= /usr/bin/#g" nRF5_SDK_15.3.0_59ac345/components/toolchain/gcc/Makefile.posix
 
 # patch MakerDiary MDK Dongle Makefile for correct download path of SDK path and build
-WORKDIR /root/LOGITacker/mdk-dongle/blank/armgcc
+WORKDIR /root/LOGITackerMouseComplete/mdk-dongle/blank/armgcc
 RUN sed -i "s#^SDK_ROOT.*#SDK_ROOT := /root/nRF5_SDK_15.3.0_59ac345#g" Makefile && make
 
 
