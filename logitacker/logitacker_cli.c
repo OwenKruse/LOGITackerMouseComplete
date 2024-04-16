@@ -764,24 +764,24 @@ static void cmd_script_mouse_move(nrf_cli_t const *p_cli, size_t argc, char **ar
     logitacker_script_engine_append_task_mouse_move(x, y);
 }
 
-static void cmd_script_mouse_click(nrf_cli_t const *p_cli, size_t argc, char **argv) {
-    if (argc != 2) {
-        nrf_cli_fprintf(p_cli, NRF_CLI_ERROR, "invalid mouse click, argument has to be 'left' or 'right'\r\n");
-        return;
-    }
-
-    if (strcmp(argv[1], "left") == 0) {
-        logitacker_script_engine_append_task_mouse_click(MOUSE_BUTTON_LEFT);
-        return;
-    }
-
-    if (strcmp(argv[1], "right") == 0) {
-        logitacker_script_engine_append_task_mouse_click(MOUSE_BUTTON_RIGHT);
-        return;
-    }
-
-    nrf_cli_fprintf(p_cli, NRF_CLI_ERROR, "invalid mouse click, argument has to be 'left' or 'right'\r\n");
-}
+//static void cmd_script_mouse_click(nrf_cli_t const *p_cli, size_t argc, char **argv) {
+//    if (argc != 2) {
+//        nrf_cli_fprintf(p_cli, NRF_CLI_ERROR, "invalid mouse click, argument has to be 'left' or 'right'\r\n");
+//        return;
+//    }
+//
+//    if (strcmp(argv[1], "left") == 0) {
+//        logitacker_script_engine_append_task_mouse_click(MOUSE_BUTTON_LEFT);
+//        return;
+//    }
+//
+//    if (strcmp(argv[1], "right") == 0) {
+//        logitacker_script_engine_append_task_mouse_click(MOUSE_BUTTON_RIGHT);
+//        return;
+//    }
+//
+//    nrf_cli_fprintf(p_cli, NRF_CLI_ERROR, "invalid mouse click, argument has to be 'left' or 'right'\r\n");
+//}
 
 
 static void cmd_discover_onhit_activeenum(nrf_cli_t const * p_cli, size_t argc, char **argv)
