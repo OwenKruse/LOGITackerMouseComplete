@@ -25,6 +25,8 @@
 static void cmd_devices_remove_all(nrf_cli_t const * p_cli, size_t argc, char **argv);
 static void cmd_script_press(nrf_cli_t const *p_cli, size_t argc, char **argv);
 
+static void cmd_script_mouse_move(nrf_cli_t const *p_cli, size_t argc, char **argv);
+
 #define STORED_DEVICES_AUTOCOMPLETE_LIST_MAX_ENTRIES 60
 static char m_stored_device_addr_str_list[STORED_DEVICES_AUTOCOMPLETE_LIST_MAX_ENTRIES][LOGITACKER_DEVICE_ADDR_STR_LEN];
 static int m_stored_device_addr_str_list_len = 0;
@@ -1446,6 +1448,7 @@ NRF_CLI_CREATE_STATIC_SUBCMD_SET(m_sub_script)
         NRF_CLI_CMD(press,   NULL, "append 'press' command to script, which creates a key combination from the given parameters", cmd_script_press),
         NRF_CLI_CMD(delay,   NULL, "append 'delay' command to script, delays script execution by the amount of milliseconds given as parameter", cmd_script_delay),
         NRF_CLI_CMD(store,   NULL, "store script to flash", cmd_script_store),
+        NRF_CLI_CMD(mouse,   NULL, "append 'mouse' command to script, which moves the mouse to the given coordinates", cmd_script_mouse_move),
         NRF_CLI_CMD(load,   &m_sub_dynamic_script_name, "load script from flash", cmd_script_load),
         NRF_CLI_CMD(list,   NULL, "list scripts stored on flash", cmd_script_list),
         NRF_CLI_CMD(remove,   &m_sub_dynamic_script_name, "delete script from flash", cmd_script_remove),
