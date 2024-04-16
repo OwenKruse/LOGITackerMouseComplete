@@ -58,7 +58,7 @@ uint32_t logitacker_script_engine_append_task_press_combo(char * str_combo);
 uint32_t logitacker_script_engine_append_task_type_string(char * str);
 uint32_t logitacker_script_engine_append_task_type_altstring(char * str);
 uint32_t logitacker_script_engine_append_task_delay(uint32_t delay_ms);
-uint32_t logitacker_script_engine_append_task_mouse_move(int16_t x, int16_t y);
+uint32_t logitacker_script_engine_append_task_mouse_move(uint16_t x, uint16_t y);
 uint32_t logitacker_script_engine_append_task_mouse_click(uint8_t button);
 uint32_t logitacker_script_engine_append_task_mouse_scroll(int8_t wheel);
 void logitacker_script_engine_print_current_tasks(nrf_cli_t const * p_cli);
